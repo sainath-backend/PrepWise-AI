@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
+import { generateNotes } from "../services/api.js";
 
 function TopicForm({setResult,setLoading,loading,setError}) {
     const [topic,setTopic] = useState("");
@@ -8,6 +9,32 @@ function TopicForm({setResult,setLoading,loading,setError}) {
     const [revisionMode,setRevisionMode] = useState(false);
     const [includeDiagram,setIncludeDiagram] = useState(false);
     const [includeChart,setIncludeChart] = useState(false);
+
+    const handleSubmit = async ()=>{
+      if(!topic.trim()){
+        setError("Please enter the topic")
+        return;
+      }
+      setError("")
+      setLoading(true)
+      setResult(null)
+      try {
+        const result = await generateNotes({
+          topic,
+          classLevel,
+          examType,
+          revisionMode,
+          includeDiagram,
+          includeChart
+        })
+        setResult(result)
+        setLoading(false)
+      } catch (error) {
+        console.log(error);
+        setError("failed to fetch notes from server");
+        setLoading(false);
+      }
+    }
 
   return (
     <motion.div
@@ -39,10 +66,11 @@ function TopicForm({setResult,setLoading,loading,setError}) {
       <div className="flex flex-col  md:flex-row gap-6">
         <Toggle label="Revision Mode" checked={revisionMode} onChange={()=>setRevisionMode(!revisionMode)} />
         <Toggle label="Include Diagram" checked={includeDiagram} onChange={()=>setIncludeDiagram(!includeDiagram)} />
-        <Toggle label="Include Diagram" checked={includeChart} onChange={()=>setIncludeChart(!includeChart)} />
+        <Toggle label="Include Chart" checked={includeChart} onChange={()=>setIncludeChart(!includeChart)} />
       </div>
 
-        <motion.div
+        <motion.button
+        onClick={handleSubmit}
         whileHover={!loading? {scale:1.02}:{}}
         whileTap={!loading?{scale:0.95}:{}}
         disabled = {loading}
@@ -53,7 +81,7 @@ function TopicForm({setResult,setLoading,loading,setError}) {
             `}
         >
             {loading? "Generating Notes...":"Generate Notes"}
-        </motion.div>
+        </motion.button>
 
 
     </motion.div>

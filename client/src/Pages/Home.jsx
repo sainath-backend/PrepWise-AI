@@ -43,7 +43,8 @@ function Home() {
               Generate exam-focused notes, project documentation, flow diagrams
               and revision-ready content using AI - faster, cleaner and smarter.
             </motion.p>
-            <motion.button
+          </motion.div>
+          <motion.button
               onClick={()=>navigate("/notes")}
               whileHover={{
                 scale: 1.07
@@ -55,7 +56,6 @@ function Home() {
             >
               Get Started
             </motion.button>
-          </motion.div>
         </div>
 
         <motion.div

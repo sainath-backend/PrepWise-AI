@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { generateNotes } from "../services/api.js";
+import { useDispatch } from "react-redux";
+import { updateCredits } from "../redux/userSlice.js";
 
 function TopicForm({setResult,setLoading,loading,setError}) {
     const [topic,setTopic] = useState("");
@@ -9,6 +11,9 @@ function TopicForm({setResult,setLoading,loading,setError}) {
     const [revisionMode,setRevisionMode] = useState(false);
     const [includeDiagram,setIncludeDiagram] = useState(false);
     const [includeChart,setIncludeChart] = useState(false);
+    const [progress,setProgress] = useState(0);
+    const [progressText,setProgressText] = useState("");
+    const dispatch = useDispatch();
 
     const handleSubmit = async ()=>{
       if(!topic.trim()){
@@ -29,12 +34,56 @@ function TopicForm({setResult,setLoading,loading,setError}) {
         })
         setResult(result)
         setLoading(false)
+        setClassLevel("");
+        setTopic("");
+        setExamType("")
+        setIncludeChart(false);
+        setRevisionMode(false);
+        setIncludeDiagram(false);
+
+        if(typeof result.creditsLeft === "number"){
+          dispatch(updateCredits(result.creditsLeft));
+        }
+
       } catch (error) {
         console.log(error);
         setError("failed to fetch notes from server");
         setLoading(false);
       }
     }
+
+    useEffect(()=>{
+      if(!loading)
+      {
+        setProgress(0)
+        setProgressText("");
+        return;
+      }
+      let value = 0;
+      const interval = setInterval(() => {
+        value += Math.random()*8;
+        if(value>=95)
+        {
+          value = 95;
+          setProgressText("Almost done..");
+          clearInterval(interval);
+        }
+        else if(value>70)
+        {
+          setProgressText("Finalizing Notes..")
+        }
+        else if(value >40)
+        {
+          setProgressText("Processing Notes..")
+        }
+        else
+        {
+          setProgressText("Generating Notes..")
+        }
+        setProgress(Math.floor(value));
+      }, 700);
+      return ()=> clearInterval(interval);
+    },[loading])
 
   return (
     <motion.div
@@ -82,7 +131,26 @@ function TopicForm({setResult,setLoading,loading,setError}) {
         >
             {loading? "Generating Notes...":"Generate Notes"}
         </motion.button>
-
+        {
+          loading && <div className="mt-4 space-y-2">
+            <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+              <motion.div
+              initial = {{width:0}}
+              animate = {{width:`${progress}%`}}
+              transition = {{ease:"easeInOut",duration:0.6}}
+              className="h-full bg-gradient-to-r from-green-400 via-emerald-400 to-green-500"
+              >
+              </motion.div>
+            </div>
+              <div className="flex justify-between text-xs text-gray-300">
+                <span>{progressText}</span>
+                <span>{progress}%</span>
+              </div>
+              <p className="text-xs text-gray-400 text-center">
+                This may take up to 2-3 minutes. Please don't close or refresh the page.
+              </p>
+          </div>
+        }
 
     </motion.div>
   );

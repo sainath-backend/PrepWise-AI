@@ -2,7 +2,9 @@ import React from 'react'
 
 function Pricing() {
   return (
-    <div>Pricing</div>
+    <div className='min-h-screen bg-gray-100 px-6 py-10 relative'>
+
+    </div>
   )
 }
 

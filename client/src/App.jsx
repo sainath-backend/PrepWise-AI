@@ -11,7 +11,7 @@ import Pricing from './Pages/Pricing.jsx';
 import PaymentSuccess from './Pages/PaymentSuccess.jsx';
 import PaymentFailed from './Pages/PaymentFailed.jsx';
 
-export const serverUrl = "http://localhost:8000";
+export const serverUrl = "https://prepwise-ai-server.onrender.com";
 function App() {
 
   const dispatch = useDispatch()
